@@ -7,6 +7,12 @@ import com.gianfcop.ss.model.CentroSportivo;
 
 public class CentroSportivoMapper {
 
+    private CentroSportivoMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    
+
     public static NumeroPrenotazioniDTO toNumeroPrenotazioniDTO (CentroSportivo centroSportivo){
         return NumeroPrenotazioniDTO.builder()
             .numeroPrenotazioniCalcio(centroSportivo.getNumeroPrenotazioniCalcio())

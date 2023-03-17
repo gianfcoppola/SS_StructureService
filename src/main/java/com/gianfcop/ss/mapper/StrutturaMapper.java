@@ -9,6 +9,10 @@ import com.gianfcop.ss.model.Struttura;
 
 public class StrutturaMapper {
 
+    private StrutturaMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+    
     public static StrutturaDtoOut toStrutturaDtoOut(Struttura struttura){
         return StrutturaDtoOut.builder()
             .id(struttura.getId())

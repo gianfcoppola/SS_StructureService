@@ -2,6 +2,7 @@ package com.gianfcop.ss.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 
@@ -34,17 +35,12 @@ public class StrutturaService {
     }
 
     public Struttura getStrutturaById(int id){
-        return strutturaRepository.findById(id).get();
-    }
-
-    /*
-
-    public List<Struttura> getStruttureByTipoStruttura(int tipoStruttura){
-
-        return strutturaRepository.findByTipoStruttura(tipoStruttura);
+        return strutturaRepository
+            .findById(id)
+            .orElseThrow(() -> new NoSuchElementException("La struttura richiesta non esiste"));
 
     }
-     */
+
 
     public List<Struttura> getAllStrutture(){
 
@@ -83,7 +79,9 @@ public class StrutturaService {
     }
 
     public Struttura modificaStruttura(int idStruttura, Struttura struttura){
-        Struttura s = strutturaRepository.findById(idStruttura).get();
+        Struttura s = strutturaRepository
+            .findById(idStruttura)
+            .orElseThrow(() -> new NoSuchElementException("La struttura richiesta non esiste"));
         s.setPrezzoAbbonamentoMensile(struttura.getPrezzoAbbonamentoMensile());
         s.setPrezzoPrenotazione(struttura.getPrezzoPrenotazione());
         return strutturaRepository.save(s);
