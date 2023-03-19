@@ -1,68 +1,38 @@
 package com.gianfcop.ss.controller;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gianfcop.ss.model.Struttura;
 import com.gianfcop.ss.repository.StrutturaRepository;
 import com.gianfcop.ss.security.SecurityUtil;
-import com.netflix.discovery.EurekaClient;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 
 @SpringBootTest
@@ -99,6 +69,18 @@ public class StrutturaControllerTest {
                 .andReturn();
     }
 
+    @Test 
+    public void getInfoStrutture_401() throws Exception {
+
+
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+                .get("/strutture/info");
+
+        mockMvc.perform(mockRequest)
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+    }
+
 
     @Test @WithMockUser
     public void getNomiStrutture_200() throws Exception {
@@ -118,6 +100,17 @@ public class StrutturaControllerTest {
                 .andReturn();
     }
 
+    @Test 
+    public void getNomiStrutture_401() throws Exception {
+
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+                .get("/strutture/nomi");
+
+        mockMvc.perform(mockRequest)
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+    }
+
     @Test @WithMockUser
     public void idStrutturaToNome_200() throws Exception {
 
@@ -128,6 +121,17 @@ public class StrutturaControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/plain;charset=UTF-8"))
                 .andExpect(content().string("Campo da tennis"))
+                .andReturn();
+    }
+
+    @Test
+    public void idStrutturaToNome_401() throws Exception {
+
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+                .get("/strutture/nome/2");
+
+        mockMvc.perform(mockRequest)
+                .andExpect(status().isUnauthorized())
                 .andReturn();
     }
 
@@ -152,6 +156,7 @@ public class StrutturaControllerTest {
                 .andReturn();
     }
 
+
     @Test
     public void loadDatiStrutture_401() throws Exception {
 
@@ -163,6 +168,26 @@ public class StrutturaControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andReturn();
     }
+
+
+    @Test
+    public void loadDatiStrutture_403() throws Exception {
+
+        Jwt jwt = Mockito.mock(Jwt.class);
+        Mockito.when(jwt.getClaims()).thenReturn(Map.of("sub", "1234", "name", "Mario Rossi"));
+
+        Mockito.when(securityUtil.checkScope(any(Jwt.class), any(Model.class))).thenReturn(false);
+
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+                .get("/strutture/dati")
+                .with(authentication(new JwtAuthenticationToken(jwt, Collections.emptyList())));
+
+        mockMvc.perform(mockRequest)
+                .andExpect(status().isOk())
+                .andExpect(view().name("index"))
+                .andReturn();
+    }
+
 
     @Test
     public void modificaDatiStruttura_200() throws Exception {
@@ -189,6 +214,38 @@ public class StrutturaControllerTest {
     }
 
     @Test
+    public void modificaDatiStruttura_401() throws Exception {
+
+         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+                .get("/strutture/edit/1");
+
+        mockMvc.perform(mockRequest)
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+
+    }
+
+    @Test
+    public void modificaDatiStruttura_403() throws Exception {
+
+        Jwt jwt = Mockito.mock(Jwt.class);
+        Mockito.when(jwt.getClaims()).thenReturn(Map.of("sub", "1234", "name", "Mario Rossi"));
+
+        Mockito.when(securityUtil.checkScope(any(Jwt.class), any(Model.class))).thenReturn(false);
+
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+                .get("/strutture/edit/1")
+                .with(authentication(new JwtAuthenticationToken(jwt, Collections.emptyList())));
+
+        mockMvc.perform(mockRequest)
+                .andExpect(status().isOk())
+                .andExpect(view().name("index"))
+                .andExpect(model().attributeDoesNotExist("struttura"))
+                .andReturn();
+
+    }
+
+    @Test
     public void updateStruttura_200() throws Exception {
 
         Jwt jwt = Mockito.mock(Jwt.class);
@@ -203,7 +260,7 @@ public class StrutturaControllerTest {
 
         
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-            .post("/strutture/edit/1") // Aggiungi l'id della struttura che vuoi modificare
+            .post("/strutture/edit/1") 
             .param("id", "1")
             .param("descrizione", "Campo da calcetto")
             .param("prezzoPrenotazione", "50")
@@ -211,43 +268,58 @@ public class StrutturaControllerTest {
             .with(authentication(new JwtAuthenticationToken(jwt, Collections.emptyList())))
             .with(csrf());
 
-        MvcResult mvcResult = mockMvc.perform(mockRequest)
+        mockMvc.perform(mockRequest)
             .andExpect(status().isOk())
             .andExpect(view().name("dati-strutture"))
             .andExpect(model().attributeExists("strutture"))
-            //.andExpect(model().attribute("strutturaModificata", "1"))
+            .andExpect(model().attribute("strutturaModificata", "1"))
             .andReturn();
-
-        mvcResult.getModelAndView();
-
-    }
-
-
-    /* 
-    @Test
-    public void getInfoStrutture_401() throws Exception {
-
-
-        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-                .get("/strutture/info");
-
-        mockMvc.perform(mockRequest)
-                .andExpect(status().isUnauthorized())
-                .andReturn();
     }
 
     @Test
-    public void getNomiStrutture_401() throws Exception {
-
+    public void updateStruttura_401() throws Exception {
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-                .get("/strutture/nomi");
+            .post("/strutture/edit/1") 
+            .param("id", "1")
+            .param("descrizione", "Campo da calcetto")
+            .param("prezzoPrenotazione", "50")
+            .param("prezzoAbbonamentoMensile", "0")
+            .with(csrf());
 
         mockMvc.perform(mockRequest)
-                .andExpect(status().isUnauthorized())
-                .andReturn();
+            .andExpect(status().isUnauthorized())
+            .andReturn();
     }
-    */
 
+    @Test
+    public void updateStruttura_403() throws Exception {
+
+        Jwt jwt = Mockito.mock(Jwt.class);
+        Mockito.when(jwt.getClaims()).thenReturn(Map.of("sub", "1234", "name", "Mario Rossi"));
+
+        Mockito.when(securityUtil.checkScope(any(Jwt.class), any(Model.class))).thenReturn(false);
+        
+        MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
+            .post("/strutture/edit/1") 
+            .param("id", "1")
+            .param("descrizione", "Campo da calcetto")
+            .param("prezzoPrenotazione", "50")
+            .param("prezzoAbbonamentoMensile", "0")
+            .with(authentication(new JwtAuthenticationToken(jwt, Collections.emptyList())))
+            .with(csrf());
+
+        mockMvc.perform(mockRequest)
+            .andExpect(status().isOk())
+            .andExpect(view().name("index"))
+            .andReturn();
+    }
+
+
+
+
+
+
+   
     
     
 }

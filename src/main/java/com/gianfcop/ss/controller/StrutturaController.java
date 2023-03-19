@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.gianfcop.ss.dto.StrutturaDtoIn;
 import com.gianfcop.ss.dto.StrutturaDtoOut;
 import com.gianfcop.ss.model.Struttura;
 import com.gianfcop.ss.security.SecurityUtil;
@@ -60,21 +58,6 @@ public class StrutturaController {
     public ResponseEntity<String> idStrutturaToNome(@PathVariable("id") @Positive @Min(1) @Max(4) int idStruttura){
         return new ResponseEntity<>(strutturaService.getStrutturaById(idStruttura).getDescrizione(), HttpStatus.OK);
     }
-
-    /* 
-    @PostMapping("/insert")
-    public ResponseEntity<String> insertStruttura(@RequestBody @Valid StrutturaDtoIn strutturaDtoIn){
-        return new ResponseEntity<>("Struttura " + strutturaService.insertStruttura(strutturaDtoIn).getId() + " creata correttamente", HttpStatus.CREATED);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Struttura> getStrutturaById(@PathVariable("id") @Positive @Min(1) @Max(4) int id){
-        return new ResponseEntity<>(strutturaService.getStrutturaById(id), HttpStatus.OK) ;
-    }
-    */
-
-
-    
 
     @GetMapping("/dati")
     public String loadDatiStrutture(Model model, @AuthenticationPrincipal Jwt jwt) throws ServletException{

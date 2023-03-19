@@ -29,6 +29,7 @@ import com.gianfcop.ss.service.CentroSportivoService;
 import jakarta.servlet.ServletException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 
 @Controller
@@ -123,7 +124,7 @@ public class CentroSportivoController {
 
 
     @PutMapping("/centro-sportivo/nuova-prenotazione/{idStruttura}")
-    public ResponseEntity<?> nuovaPrenotazione(@PathVariable("idStruttura") @Positive(message = "idStruttura must be a positive number") @Max(4) int idStruttura){
+    public ResponseEntity<?> nuovaPrenotazione(@PathVariable("idStruttura") @Positive(message = "idStruttura must be a positive number") @Min(1) @Max(4) int idStruttura){
 
         if(idStruttura == 1 || idStruttura == 2)
             return new ResponseEntity<>(centroSportivoService.aggiornaDatiStruttura1(idStruttura), HttpStatus.OK);

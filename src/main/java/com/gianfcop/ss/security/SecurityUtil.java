@@ -4,12 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
 import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 public class SecurityUtil {
 
 
